@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            line-height: 24px;
+            font-family: Arial, sans-serif;
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Billing</h2>
+        <form id="billingForm">
+            <div class="mb-3">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="customerName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Company Name</label>
+                <input type="text" class="form-control" id="companyName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Street Address</label>
+                <input type="text" class="form-control" id="streetAddress" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="text" class="form-control" id="phone" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <h4>Items</h4>
+            <div id="items">
+                <div class="row mb-2 item-row">
+                    <div class="col"><input type="text" class="form-control" placeholder="Description" required></div>
+                    <div class="col"><input type="number" class="form-control" placeholder="Qty" required></div>
+                    <div class="col"><input type="number" class="form-control" placeholder="Unit Price" required></div>
+                    <div class="col"><button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+            <button type="submit" class="btn btn-primary">Generate Invoice</button>
+        </form>
+    </div>
+
+    <div id="invoice" class="invoice-box p-4 bg-white mt-4 d-none">
+        <h2 class="text-center">Company Name</h2>
+        <p class="text-center">Company Address</p>
+        <h4 class="text-end">Invoice No. 24277</h4>
+
+        <div class="mt-4">
+            <h5>Bill To:</h5>
+            <p id="billTo"></p>
+        </div>
+
+        <table class="table table-bordered mt-4">
+            <thead class="table-light">
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceItems"></tbody>
+        </table>
+
+        <h4 class="text-end">Total: <span id="totalAmount">0.00</span></h4>
+        <button class="btn btn-primary mt-3" onclick="printInvoice()">Download Invoice</button>
+    </div>
+
+    <script>
+        function addItem() {
+            let itemRow = document.createElement("div");
+            itemRow.classList.add("row", "mb-2", "item-row");
+            itemRow.innerHTML = `
+                <div class="col"><input type="text" class="form-control" placeholder="Description" required></div>
+                <div class="col"><input type="number" class="form-control" placeholder="Qty" required></div>
+                <div class="col"><input type="number" class="form-control" placeholder="Unit Price" required></div>
+                <div class="col"><button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button></div>
+            `;
+            document.getElementById("items").appendChild(itemRow);
+        }
+
+        function removeItem(button) {
+            button.parentElement.parentElement.remove();
+        }
+
+        document.getElementById("billingForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById("customerName").value;
+            let company = document.getElementById("companyName").value;
+            let address = document.getElementById("streetAddress").value;
+            let phone = document.getElementById("phone").value;
+            let email = document.getElementById("email").value;
+            document.getElementById("billTo").innerHTML = `${name}<br>${company}<br>${address}<br>${phone}<br>${email}`;
+
+            let items = document.querySelectorAll(".item-row");
+            let invoiceItems = document.getElementById("invoiceItems");
+            invoiceItems.innerHTML = "";
+            let total = 0;
+
+            items.forEach(row => {
+                let description = row.children[0].children[0].value;
+                let qty = parseFloat(row.children[1].children[0].value);
+                let price = parseFloat(row.children[2].children[0].value);
+                let amount = qty * price;
+                total += amount;
+                invoiceItems.innerHTML += `<tr><td>${description}</td><td>${qty}</td><td>${price.toFixed(2)}</td><td>${amount.toFixed(2)}</td></tr>`;
+            });
+
+            document.getElementById("totalAmount").textContent = total.toFixed(2);
+            document.getElementById("invoice").classList.remove("d-none");
+        });
+
+        function printInvoice() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            line-height: 24px;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Billing System</h2>
+        <form id="billingForm">
+            <div class="mb-3">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="customerName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Company Name</label>
+                <input type="text" class="form-control" id="companyName" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Street Address</label>
+                <input type="text" class="form-control" id="streetAddress" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="text" class="form-control" id="phone" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <h4>Items</h4>
+            <div id="items">
+                <div class="row mb-2 item-row">
+                    <div class="col"><input type="text" class="form-control" placeholder="Description" required></div>
+                    <div class="col"><input type="number" class="form-control" placeholder="Qty" required></div>
+                    <div class="col"><input type="number" class="form-control" placeholder="Unit Price" required></div>
+                    <div class="col"><button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+            <button type="submit" class="btn btn-primary">Generate Invoice</button>
+        </form>
+    </div>
+
+    <div id="invoice" class="invoice-box p-4 bg-white mt-4 d-none">
+        <h2 class="text-center">XYZ Company</h2>
+        <p class="text-center">[Company Address]</p>
+        <h4 class="text-end">Invoice #1234567</h4>
+
+        <div class="mt-4">
+            <h5>Bill To:</h5>
+            <p id="billTo"></p>
+        </div>
+
+        <table class="table table-bordered mt-4">
+            <thead class="table-light">
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceItems"></tbody>
+        </table>
+
+        <h4 class="text-end">Total: <span id="totalAmount">0.00</span></h4>
+        <button class="btn btn-primary mt-3" onclick="downloadPDF()">Download Invoice</button>
+    </div>
+
+    <script>
+        function addItem() {
+            let itemRow = document.createElement("div");
+            itemRow.classList.add("row", "mb-2", "item-row");
+            itemRow.innerHTML = `
+                <div class="col"><input type="text" class="form-control" placeholder="Description" required></div>
+                <div class="col"><input type="number" class="form-control" placeholder="Qty" required></div>
+                <div class="col"><input type="number" class="form-control" placeholder="Unit Price" required></div>
+                <div class="col"><button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button></div>
+            `;
+            document.getElementById("items").appendChild(itemRow);
+        }
+
+        function removeItem(button) {
+            button.parentElement.parentElement.remove();
+        }
+
+        document.getElementById("billingForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById("customerName").value;
+            let company = document.getElementById("companyName").value;
+            let address = document.getElementById("streetAddress").value;
+            let phone = document.getElementById("phone").value;
+            let email = document.getElementById("email").value;
+            document.getElementById("billTo").innerHTML = `${name}<br>${company}<br>${address}<br>${phone}<br>${email}`;
+
+            let items = document.querySelectorAll(".item-row");
+            let invoiceItems = document.getElementById("invoiceItems");
+            invoiceItems.innerHTML = "";
+            let total = 0;
+
+            items.forEach(row => {
+                let description = row.children[0].children[0].value;
+                let qty = parseFloat(row.children[1].children[0].value);
+                let price = parseFloat(row.children[2].children[0].value);
+                let amount = qty * price;
+                total += amount;
+                invoiceItems.innerHTML += `<tr><td>${description}</td><td>${qty}</td><td>${price.toFixed(2)}</td><td>${amount.toFixed(2)}</td></tr>`;
+            });
+
+            document.getElementById("totalAmount").textContent = total.toFixed(2);
+            document.getElementById("invoice").classList.remove("d-none");
+        });
+
+        function downloadPDF() {
+            const invoice = document.getElementById("invoice");
+            html2pdf().from(invoice).save("invoice.pdf");
+        }
+    </script>
+</body>
+</html> -->
